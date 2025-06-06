@@ -1,10 +1,8 @@
 package com.samueldesenvolvedor.obras_api.model;
 
-<<<<<<< Updated upstream
-=======
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.validation.constraints.*;
->>>>>>> Stashed changes
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,11 +31,12 @@ public class Obra {
     // Lista de etapas relacionadas a essa obra (relacionamento 1:N)
     @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
 
-    private List<Etapa> etapas; // Lista do TIPO etapas que ira dizer a etapa que a obra se encontra PENDENTE, EM_ANDAMENTO ou CONCLUIDA.
+    private List<Etapa> etapas; // Lista do TIPO etapas que ira dizer a etapa que a obra se encontra PENDENTE,
+                                // EM_ANDAMENTO ou CONCLUIDA.
 
     // Construtores Da Classe Obra
     public Obra() {
-        //Default
+        // Default
     }
 
     public Obra(Long id, String nome, String descricao, LocalDate dataInicio, LocalDate dataPrevisaoFim,
