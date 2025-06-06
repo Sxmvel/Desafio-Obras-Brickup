@@ -5,13 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import jakarta.validation.constraints.*;
-
-
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 public class Obra {
@@ -38,10 +34,6 @@ public class Obra {
 
     @JsonIgnore
     private List<Etapa> etapas = new ArrayList<>();
-
-
-    private List<Etapa> etapas; // Lista do TIPO etapas que ira dizer a etapa que a obra se encontra PENDENTE,
-                                // EM_ANDAMENTO ou CONCLUIDA.
 
     // Construtores Da Classe Obra
     public Obra() {
