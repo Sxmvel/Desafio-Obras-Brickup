@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/etapas")
@@ -17,38 +16,48 @@ public class EtapaController {
     private EtapaService etapaService;
 
     @GetMapping
-    public List<Etapa> listarTodas() {
+    public List<Etapa> listarEtapas() {
         return etapaService.buscarTodasEtapas();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Etapa> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<Etapa> buscarEtapaPorId(@PathVariable Long id) {
         Optional<Etapa> etapa = etapaService.buscarEtapaPorId(id);
-        return etapa.map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+        return etapa.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Etapa salvar(@RequestBody Etapa etapa) {
-        return etapaService.salvarEtapa(etapa);
+    public ResponseEntity<Etapa> salvarEtapa(@RequestBody Etapa etapa) {
+        Etapa etapaSalva = etapaService.salvarEtapa(etapa);
+        return ResponseEntity.ok(etapaSalva);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Etapa> atualizarEtapa(@PathVariable Long id, @RequestBody Etapa etapaAtualizada) {
-        Optional<Etapa> optionalEtapa = etapaService.buscarEtapaPorId(id);
+        Optional<Etapa> etapaExistente = etapaService.buscarEtapaPorId(id);
+        if (etapaExistente.isPresent()) {
+            Etapa etapa = etapaExistente.get();
+            etapa.setNome(etapaAtualizada.getNome());
+            etapa.setResponsavel(etapaAtualizada.getResponsavel());
+            etapa.setDataInicio(etapaAtualizada.getDataInicio());
+            etapa.setDataFim(etapaAtualizada.getDataFim());
+            etapa.setStatus(etapaAtualizada.getStatus());
 
-        if (optionalEtapa.isEmpty()) {
+            Etapa etapaSalva = etapaService.salvarEtapa(etapa);
+            return ResponseEntity.ok(etapaSalva);
+        } else {
             return ResponseEntity.notFound().build();
         }
+    }
 
-        Etapa etapaExistente = optionalEtapa.get();
-        etapaExistente.setNome(etapaAtualizada.getNome());
-        etapaExistente.setResponsavel(etapaAtualizada.getResponsavel());
-        etapaExistente.setDataInicio(etapaAtualizada.getDataInicio());
-        etapaExistente.setDataFim(etapaAtualizada.getDataFim());
-        etapaExistente.setStatus(etapaAtualizada.getStatus());
-
-        Etapa etapaSalva = etapaService.salvarEtapa(etapaExistente);
-        return ResponseEntity.ok(etapaSalva);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEtapa(@PathVariable Long id) {
+        Optional<Etapa> etapa = etapaService.buscarEtapaPorId(id);
+        if (etapa.isPresent()) {
+            etapaService.deletarEtapa(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
