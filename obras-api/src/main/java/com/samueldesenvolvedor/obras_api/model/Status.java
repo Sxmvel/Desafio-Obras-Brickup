@@ -7,10 +7,7 @@ package com.samueldesenvolvedor.obras_api.model;
  * - CONCLUIDA: etapa finalizada
  */
 
-<<<<<<< HEAD
-=======
 
->>>>>>> Repository
 public enum Status {
     PENDENTE,
     EM_ANDAMENTO,
