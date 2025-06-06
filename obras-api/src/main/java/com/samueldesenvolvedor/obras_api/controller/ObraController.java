@@ -17,34 +17,37 @@ public class ObraController {
     private ObraService obraService;
 
     @GetMapping
-    public List<Obra> listarObras() {
+    public List<Obra> listarTodas() {
         return obraService.buscarTodasObras();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Obra> buscarPorId(@PathVariable Long id) {
         Optional<Obra> obra = obraService.buscarObraPorId(id);
-        return obra.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return obra.map(ResponseEntity::ok)
+                   .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Obra criarObra(@RequestBody Obra obra) {
+    public Obra salvar(@RequestBody Obra obra) {
         return obraService.salvarObra(obra);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Obra> atualizarObra(@PathVariable Long id, @RequestBody Obra novaObra) {
-        Obra atualizada = obraService.atualizarObra(id, novaObra);
-        if (atualizada != null) {
-            return ResponseEntity.ok(atualizada);
-        } else {
+    public ResponseEntity<Obra> atualizarObra(@PathVariable Long id, @RequestBody Obra obraAtualizada) {
+        Optional<Obra> optionalObra = obraService.buscarObraPorId(id);
+
+        if (optionalObra.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarObra(@PathVariable Long id) {
-        obraService.deletarObra(id);
-        return ResponseEntity.noContent().build();
+        Obra obraExistente = optionalObra.get();
+        obraExistente.setNome(obraAtualizada.getNome());
+        obraExistente.setDescricao(obraAtualizada.getDescricao());
+        obraExistente.setDataInicio(obraAtualizada.getDataInicio());
+        obraExistente.setDataPrevisaoFim(obraAtualizada.getDataPrevisaoFim());
+
+        Obra obraSalva = obraService.salvarObra(obraExistente);
+        return ResponseEntity.ok(obraSalva);
     }
 }
