@@ -3,26 +3,34 @@ package com.samueldesenvolvedor.obras_api.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class Etapa {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto incremento
-
+   @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "O nome da etapa é obrigatório")
+    private String nome;
+
+    @NotBlank(message = "O responsável pela etapa é obrigatório")
+    private String responsavel;
+
+    @NotNull(message = "A data de início da etapa é obrigatória")
+    private LocalDate dataInicio;
+
+    @NotNull(message = "A data de fim da etapa é obrigatória")
+    private LocalDate dataFim;
+
+    @NotNull(message = "O status da etapa é obrigatório")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @NotNull(message = "A obra relacionada é obrigatória")
     @ManyToOne
     @JoinColumn(name = "obra_id")
     private Obra obra;
-
-    private String nome;
-
-    @Enumerated(EnumType.STRING)
-    private Status status; // armazena o valor como texto no banco - (ex: PENDENTE, EM_ANDAMENTO, etc.).
-    private String responsavel;
-    private LocalDate dataInicio;
-    private LocalDate dataFim;
 
 
     // Construtores Da Classe Etapa 
