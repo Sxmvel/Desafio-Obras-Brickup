@@ -1,5 +1,10 @@
 package com.samueldesenvolvedor.obras_api.model;
 
+<<<<<<< Updated upstream
+=======
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.*;
+>>>>>>> Stashed changes
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,13 +14,20 @@ import java.util.Objects;
 public class Obra {
 
     @Id // Chave primária
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto incremento no MySQL
 
-    // Atributos da obra.
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto incremento no MySQL
     private Long id; // Id da obra
+
+    @NotBlank(message = "O nome da obra é obrigatório")
     private String nome; // Nome da Obra
+
+    @NotBlank(message = "A descrição da obra é obrigatória")
     private String descricao; // Descricao da obra
+
+    @NotNull(message = "A data de início é obrigatória")
     private LocalDate dataInicio; // Data inicial
+
+    @NotNull(message = "A data de previsão de fim é obrigatória")
     private LocalDate dataPrevisaoFim; // Data Final
 
     // Lista de etapas relacionadas a essa obra (relacionamento 1:N)
