@@ -1,6 +1,10 @@
 package com.samueldesenvolvedor.obras_api.repository;
 
+<<<<<<< HEAD
 import com.samueldesenvolvedor.obras_api.model.Obra; // <- este é o import necessário
+=======
+import com.samueldesenvolvedor.obraapi.model.Obra;
+>>>>>>> Repository
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

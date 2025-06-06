@@ -86,8 +86,6 @@ public class Etapa {
         this.dataFim = dataFim;
     }
 
-
-
     // HASHCODE E EQUALS
 
     @Override
@@ -118,8 +116,5 @@ public class Etapa {
                 && Objects.equals(dataInicio, etapa.dataInicio)
                 && Objects.equals(dataFim, etapa.dataFim);
     }
-
-
     
-
 }
