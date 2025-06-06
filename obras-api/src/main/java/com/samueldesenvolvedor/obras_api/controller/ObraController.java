@@ -1,5 +1,6 @@
 package com.samueldesenvolvedor.obras_api.controller;
 
+import com.samueldesenvolvedor.obras_api.dto.ProgressoObraDTO;
 import com.samueldesenvolvedor.obras_api.model.Obra;
 import com.samueldesenvolvedor.obras_api.service.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +60,11 @@ public class ObraController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/progresso")
+    public ResponseEntity<ProgressoObraDTO> obterProgressoObra(@PathVariable Long id) {
+        ProgressoObraDTO progresso = obraService.calcularProgresso(id);
+        return ResponseEntity.ok(progresso);
     }
 }
