@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -7,6 +7,21 @@ import {
   fetchProgressoObra,
   addEtapa,
 } from '../redux/obras/obrasSlice';
+import {
+  Typography,
+  Progress,
+  List,
+  Select,
+  Form,
+  Input,
+  DatePicker,
+  Button,
+  Divider,
+  message,
+} from 'antd';
+
+const { Title, Paragraph } = Typography;
+const { Option } = Select;
 
 const ObraDetalhes = () => {
   const { id } = useParams();
@@ -16,44 +31,12 @@ const ObraDetalhes = () => {
   const progresso = useSelector((state) => state.obras.progresso);
   const status = useSelector((state) => state.obras.status);
 
-  const [novaEtapa, setNovaEtapa] = useState({
-    nome: '',
-    status: 'PENDENTE',
-    responsavel: '',
-    dataInicio: '',
-    dataFim: '',
-  });
+  const [form] = Form.useForm();
 
   useEffect(() => {
     dispatch(fetchObraDetalhada(id));
     dispatch(fetchProgressoObra(id));
   }, [dispatch, id]);
-
-  const handleChangeEtapa = (e) => {
-    setNovaEtapa({ ...novaEtapa, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmitEtapa = (e) => {
-    e.preventDefault();
-
-    const etapaComObra = {
-      ...novaEtapa,
-      obra: { id: Number(id) },
-    };
-
-    dispatch(addEtapa({ etapaData: etapaComObra, obraId: Number(id) }))
-      .then(() => {
-        dispatch(fetchObraDetalhada(id));
-        dispatch(fetchProgressoObra(id));
-        setNovaEtapa({
-          nome: '',
-          status: 'PENDENTE',
-          responsavel: '',
-          dataInicio: '',
-          dataFim: '',
-        });
-      });
-  };
 
   const handleStatusChange = (etapaId, novoStatus) => {
     const etapa = obra.etapas.find((e) => e.id === etapaId);
@@ -69,100 +52,103 @@ const ObraDetalhes = () => {
       .then(() => {
         dispatch(fetchObraDetalhada(id));
         dispatch(fetchProgressoObra(id));
+        message.success('Status atualizado com sucesso!');
       })
-      .catch((err) => {
-        console.error('Erro ao atualizar status:', err);
+      .catch(() => {
+        message.error('Erro ao atualizar status.');
+      });
+  };
+
+  const onFinish = (values) => {
+    const novaEtapa = {
+      nome: values.nome,
+      responsavel: values.responsavel,
+      dataInicio: values.dataInicio.format('YYYY-MM-DD'),
+      dataFim: values.dataFim.format('YYYY-MM-DD'),
+      status: values.status,
+      obra: { id: Number(id) },
+    };
+
+    dispatch(addEtapa({ etapaData: novaEtapa, obraId: Number(id) }))
+      .then(() => {
+        dispatch(fetchObraDetalhada(id));
+        dispatch(fetchProgressoObra(id));
+        form.resetFields();
+        message.success('Etapa adicionada com sucesso!');
       });
   };
 
   if (status === 'loading') return <p>Carregando...</p>;
   if (!obra) return <p>Obra não encontrada.</p>;
 
-  const progressoPercentual = progresso?.percentualConcluido ?? 0;
-
   return (
-    <div>
-      <h2>Detalhes da Obra</h2>
-      <p><strong>Nome:</strong> {obra.nome}</p>
-      <p><strong>Descrição:</strong> {obra.descricao}</p>
-      <p><strong>Data de Início:</strong> {obra.dataInicio}</p>
-      <p><strong>Data de Fim Prevista:</strong> {obra.dataPrevisaoFim}</p>
+    <div style={{ padding: '24px' }}>
+      <Title level={2}>Detalhes da Obra</Title>
+      <Paragraph><strong>Nome:</strong> {obra.nome}</Paragraph>
+      <Paragraph><strong>Descrição:</strong> {obra.descricao}</Paragraph>
+      <Paragraph><strong>Data de Início:</strong> {obra.dataInicio}</Paragraph>
+      <Paragraph><strong>Previsão de Fim:</strong> {obra.dataPrevisaoFim}</Paragraph>
 
       {progresso && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Progresso</h3>
-          <progress value={progressoPercentual} max="100" style={{ width: '100%' }} />
-          <p>
+        <>
+          <Divider />
+          <Title level={4}>Progresso</Title>
+          <Progress percent={progresso.percentualConcluido.toFixed(1)} strokeColor="#fa8c16" />
+          <Paragraph>
             {progresso.etapasConcluidas} de {progresso.totalEtapas} etapas concluídas
-            ({progressoPercentual.toFixed(1)}%)
-          </p>
-        </div>
+          </Paragraph>
+        </>
       )}
 
-      <h3>Etapas</h3>
-      {obra.etapas && obra.etapas.length > 0 ? (
-        <ul>
-          {obra.etapas.map((etapa) => (
-            <li key={etapa.id}>
-              <strong>{etapa.nome}</strong> -
-              <select
-                value={etapa.status}
-                onChange={(e) => handleStatusChange(etapa.id, e.target.value)}
-                style={{ marginLeft: '8px' }}
-              >
-                <option value="PENDENTE">PENDENTE</option>
-                <option value="EM_ANDAMENTO">EM_ANDAMENTO</option>
-                <option value="CONCLUIDA">CONCLUIDA</option>
-              </select>
-              <span style={{ marginLeft: '8px' }}>
-                Responsável: {etapa.responsavel}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Nenhuma etapa cadastrada.</p>
-      )}
+      <Divider />
+      <Title level={4}>Etapas</Title>
+      <List
+        bordered
+        dataSource={obra.etapas}
+        renderItem={(etapa) => (
+          <List.Item>
+            <strong>{etapa.nome}</strong> — Responsável: {etapa.responsavel}
+            <Select
+              value={etapa.status}
+              onChange={(value) => handleStatusChange(etapa.id, value)}
+              style={{ width: 160, marginLeft: '1rem' }}
+            >
+              <Option value="PENDENTE">PENDENTE</Option>
+              <Option value="EM_ANDAMENTO">EM ANDAMENTO</Option>
+              <Option value="CONCLUIDA">CONCLUÍDA</Option>
+            </Select>
+          </List.Item>
+        )}
+      />
 
-      <h3>Adicionar Etapa</h3>
-      <form onSubmit={handleSubmitEtapa}>
-        <input
-          type="text"
-          name="nome"
-          placeholder="Nome da Etapa"
-          value={novaEtapa.nome}
-          onChange={handleChangeEtapa}
-          required
-        />
-        <input
-          type="text"
-          name="responsavel"
-          placeholder="Responsável"
-          value={novaEtapa.responsavel}
-          onChange={handleChangeEtapa}
-          required
-        />
-        <input
-          type="date"
-          name="dataInicio"
-          value={novaEtapa.dataInicio}
-          onChange={handleChangeEtapa}
-          required
-        />
-        <input
-          type="date"
-          name="dataFim"
-          value={novaEtapa.dataFim}
-          onChange={handleChangeEtapa}
-          required
-        />
-        <select name="status" value={novaEtapa.status} onChange={handleChangeEtapa}>
-          <option value="PENDENTE">PENDENTE</option>
-          <option value="EM_ANDAMENTO">EM_ANDAMENTO</option>
-          <option value="CONCLUIDA">CONCLUIDA</option>
-        </select>
-        <button type="submit">Adicionar Etapa</button>
-      </form>
+      <Divider />
+      <Title level={4}>Adicionar Nova Etapa</Title>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form.Item name="nome" label="Nome da Etapa" rules={[{ required: true }]}>
+          <Input placeholder="Nome" />
+        </Form.Item>
+        <Form.Item name="responsavel" label="Responsável" rules={[{ required: true }]}>
+          <Input placeholder="Responsável" />
+        </Form.Item>
+        <Form.Item name="dataInicio" label="Data de Início" rules={[{ required: true }]}>
+          <DatePicker format="YYYY-MM-DD" />
+        </Form.Item>
+        <Form.Item name="dataFim" label="Data de Fim" rules={[{ required: true }]}>
+          <DatePicker format="YYYY-MM-DD" />
+        </Form.Item>
+        <Form.Item name="status" label="Status" initialValue="PENDENTE" rules={[{ required: true }]}>
+          <Select>
+            <Option value="PENDENTE">PENDENTE</Option>
+            <Option value="EM_ANDAMENTO">EM ANDAMENTO</Option>
+            <Option value="CONCLUIDA">CONCLUÍDA</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Adicionar Etapa
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

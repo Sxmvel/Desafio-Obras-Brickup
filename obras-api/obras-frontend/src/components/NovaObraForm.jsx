@@ -1,57 +1,78 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
+import { Form, Input, DatePicker, Button, Typography, message, Card } from 'antd';
+
+const { Title } = Typography;
 
 const NovaObraForm = ({ onObraCriada }) => {
-  const [nome, setNome] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [dataInicio, setDataInicio] = useState('');
-  const [dataPrevisaoFim, setDataPrevisaoFim] = useState('');
+  const [form] = Form.useForm();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onFinish = async (values) => {
     try {
       const novaObra = {
-        nome,
-        descricao,
-        dataInicio,
-        dataPrevisaoFim
+        nome: values.nome,
+        descricao: values.descricao,
+        dataInicio: values.dataInicio.format('YYYY-MM-DD'),
+        dataPrevisaoFim: values.dataPrevisaoFim.format('YYYY-MM-DD'),
       };
 
       await axios.post('http://localhost:8080/api/obras', novaObra);
-      alert('Obra cadastrada com sucesso!');
-      setNome('');
-      setDescricao('');
-      setDataInicio('');
-      setDataPrevisaoFim('');
-      onObraCriada(); // Atualiza a lista de obras
+      message.success('Obra cadastrada com sucesso!');
+      form.resetFields();
+      onObraCriada();
     } catch (error) {
       console.error('Erro ao cadastrar obra:', error);
-      alert('Erro ao cadastrar obra.');
+      message.error('Erro ao cadastrar obra.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-      <h2>Cadastrar Nova Obra</h2>
-      <div>
-        <label>Nome: </label>
-        <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} required />
-      </div>
-      <div>
-        <label>Descrição: </label>
-        <input type="text" value={descricao} onChange={(e) => setDescricao(e.target.value)} required />
-      </div>
-      <div>
-        <label>Data de Início: </label>
-        <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} required />
-      </div>
-      <div>
-        <label>Data de Previsão de Fim: </label>
-        <input type="date" value={dataPrevisaoFim} onChange={(e) => setDataPrevisaoFim(e.target.value)} required />
-      </div>
-      <button type="submit">Cadastrar Obra</button>
-    </form>
+    <Card style={{ marginBottom: 24, borderColor: '#fa8c16' }}>
+      <Title level={3}>Cadastrar Nova Obra</Title>
+      <Form
+        layout="vertical"
+        form={form}
+        onFinish={onFinish}
+      >
+        <Form.Item
+          name="nome"
+          label="Nome da Obra"
+          rules={[{ required: true, message: 'Por favor, insira o nome da obra' }]}
+        >
+          <Input placeholder="Nome da obra" />
+        </Form.Item>
+
+        <Form.Item
+          name="descricao"
+          label="Descrição"
+          rules={[{ required: true, message: 'Por favor, insira a descrição' }]}
+        >
+          <Input placeholder="Descrição da obra" />
+        </Form.Item>
+
+        <Form.Item
+          name="dataInicio"
+          label="Data de Início"
+          rules={[{ required: true, message: 'Selecione a data de início' }]}
+        >
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+        </Form.Item>
+
+        <Form.Item
+          name="dataPrevisaoFim"
+          label="Data de Previsão de Fim"
+          rules={[{ required: true, message: 'Selecione a data de previsão de fim' }]}
+        >
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+        </Form.Item>
+
+        <Form.Item>
+          <Button type="primary" htmlType="submit" style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}>
+            Cadastrar Obra
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
   );
 };
 

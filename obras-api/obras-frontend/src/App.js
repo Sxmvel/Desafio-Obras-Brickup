@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Layout, ConfigProvider } from 'antd';
+import 'antd/dist/reset.css';
+
 import ListaObras from './components/ObrasList';
 import NovaObraForm from './components/NovaObraForm';
 import ObraDetalhes from './components/ObraDetalhes';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+const { Header, Content, Footer } = Layout;
 
 function App() {
   const [reload, setReload] = useState(false);
@@ -12,24 +17,41 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App">
-        <h1>Gerenciamento de Obras</h1>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#fa8c16',
+          borderRadius: 6,
+        },
+      }}
+    >
+      <Router>
+        <Layout>
+          <Header style={{ backgroundColor: '#fa8c16', color: 'white', fontSize: '20px' }}>
+            Gerenciamento de Obras
+          </Header>
 
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <NovaObraForm onObraCriada={atualizarLista} />
-                <ListaObras reload={reload} />
-              </>
-            }
-          />
-          <Route path="/obras/:id" element={<ObraDetalhes />} />
-        </Routes>
-      </div>
-    </Router>
+          <Content style={{ padding: '24px' }}>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <NovaObraForm onObraCriada={atualizarLista} />
+                    <ListaObras reload={reload} />
+                  </>
+                }
+              />
+              <Route path="/obras/:id" element={<ObraDetalhes />} />
+            </Routes>
+          </Content>
+
+          <Footer style={{ textAlign: 'center' }}>
+            Desenvolvido por Samuel Resende ©2025
+          </Footer>
+        </Layout>
+      </Router>
+    </ConfigProvider>
   );
 }
 
