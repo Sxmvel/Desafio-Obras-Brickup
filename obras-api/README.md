@@ -123,7 +123,7 @@ A API estará disponível em: [http://localhost:8080](http://localhost:8080)
 
 - ✅ Backend finalizado com sucesso.
 - 🧠 Totalmente funcional com regras de negócio e DTOs
-- 🕒 Frontend com React + Redux Toolkit **em desenvolvimento**
+- 🕒 Frontend com React + Redux Toolkit 
 
 ---
 
