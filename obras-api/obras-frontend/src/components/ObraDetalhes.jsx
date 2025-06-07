@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 import {
   fetchObraDetalhada,
   fetchProgressoObra,
@@ -10,7 +11,6 @@ import {
 const ObraDetalhes = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const [reload, setReload] = useState(false);
 
   const obra = useSelector((state) => state.obras.obraSelecionada);
   const progresso = useSelector((state) => state.obras.progresso);
@@ -20,6 +20,8 @@ const ObraDetalhes = () => {
     nome: '',
     status: 'PENDENTE',
     responsavel: '',
+    dataInicio: '',
+    dataFim: '',
   });
 
   useEffect(() => {
@@ -33,16 +35,50 @@ const ObraDetalhes = () => {
 
   const handleSubmitEtapa = (e) => {
     e.preventDefault();
-    const etapaComObraId = { ...novaEtapa, obraId: Number(id) };
-    dispatch(addEtapa(etapaComObraId)).then(() => {
-      dispatch(fetchObraDetalhada(id));
-      dispatch(fetchProgressoObra(id));
-      setNovaEtapa({ nome: '', status: 'PENDENTE', responsavel: '' });
-    });
+
+    const etapaComObra = {
+      ...novaEtapa,
+      obra: { id: Number(id) },
+    };
+
+    dispatch(addEtapa({ etapaData: etapaComObra, obraId: Number(id) }))
+      .then(() => {
+        dispatch(fetchObraDetalhada(id));
+        dispatch(fetchProgressoObra(id));
+        setNovaEtapa({
+          nome: '',
+          status: 'PENDENTE',
+          responsavel: '',
+          dataInicio: '',
+          dataFim: '',
+        });
+      });
+  };
+
+  const handleStatusChange = (etapaId, novoStatus) => {
+    const etapa = obra.etapas.find((e) => e.id === etapaId);
+    if (!etapa) return;
+
+    const etapaAtualizada = {
+      ...etapa,
+      status: novoStatus,
+      obra: { id: obra.id },
+    };
+
+    axios.put(`http://localhost:8080/api/etapas/${etapaId}`, etapaAtualizada)
+      .then(() => {
+        dispatch(fetchObraDetalhada(id));
+        dispatch(fetchProgressoObra(id));
+      })
+      .catch((err) => {
+        console.error('Erro ao atualizar status:', err);
+      });
   };
 
   if (status === 'loading') return <p>Carregando...</p>;
   if (!obra) return <p>Obra não encontrada.</p>;
+
+  const progressoPercentual = progresso?.percentualConcluido ?? 0;
 
   return (
     <div>
@@ -55,10 +91,10 @@ const ObraDetalhes = () => {
       {progresso && (
         <div style={{ marginTop: '20px' }}>
           <h3>Progresso</h3>
-          <progress value={progresso.progressoPercentual} max="100" style={{ width: '100%' }} />
+          <progress value={progressoPercentual} max="100" style={{ width: '100%' }} />
           <p>
             {progresso.etapasConcluidas} de {progresso.totalEtapas} etapas concluídas
-            ({progresso.progressoPercentual}%)
+            ({progressoPercentual.toFixed(1)}%)
           </p>
         </div>
       )}
@@ -68,7 +104,19 @@ const ObraDetalhes = () => {
         <ul>
           {obra.etapas.map((etapa) => (
             <li key={etapa.id}>
-              <strong>{etapa.nome}</strong> - {etapa.status} - Responsável: {etapa.responsavel}
+              <strong>{etapa.nome}</strong> -
+              <select
+                value={etapa.status}
+                onChange={(e) => handleStatusChange(etapa.id, e.target.value)}
+                style={{ marginLeft: '8px' }}
+              >
+                <option value="PENDENTE">PENDENTE</option>
+                <option value="EM_ANDAMENTO">EM_ANDAMENTO</option>
+                <option value="CONCLUIDA">CONCLUIDA</option>
+              </select>
+              <span style={{ marginLeft: '8px' }}>
+                Responsável: {etapa.responsavel}
+              </span>
             </li>
           ))}
         </ul>
@@ -91,6 +139,20 @@ const ObraDetalhes = () => {
           name="responsavel"
           placeholder="Responsável"
           value={novaEtapa.responsavel}
+          onChange={handleChangeEtapa}
+          required
+        />
+        <input
+          type="date"
+          name="dataInicio"
+          value={novaEtapa.dataInicio}
+          onChange={handleChangeEtapa}
+          required
+        />
+        <input
+          type="date"
+          name="dataFim"
+          value={novaEtapa.dataFim}
           onChange={handleChangeEtapa}
           required
         />

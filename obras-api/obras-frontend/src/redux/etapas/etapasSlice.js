@@ -1,45 +1,37 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getObras } from '../../services/obrasService';
 import axios from 'axios';
 
-const initialState = {
-  lista: [],
-  status: 'idle',
-  erro: null,
-};
-
-export const fetchObras = createAsyncThunk('obras/fetchObras', async () => {
-  const data = await getObras();
-  return data;
-});
-
+// Thunk para adicionar nova etapa
 export const addEtapa = createAsyncThunk(
-  'obras/addEtapa',
+  'etapas/addEtapa',
   async (etapaData) => {
     const response = await axios.post('http://localhost:8080/api/etapas', etapaData);
     return response.data;
   }
 );
 
-
-const obrasSlice = createSlice({
-  name: 'obras',
-  initialState,
+const etapasSlice = createSlice({
+  name: 'etapas',
+  initialState: {
+    lista: [],
+    status: 'idle',
+    error: null,
+  },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchObras.pending, (state) => {
+      .addCase(addEtapa.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchObras.fulfilled, (state, action) => {
+      .addCase(addEtapa.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.lista = action.payload;
+        state.lista.push(action.payload);
       })
-      .addCase(fetchObras.rejected, (state, action) => {
+      .addCase(addEtapa.rejected, (state, action) => {
         state.status = 'failed';
-        state.erro = action.error.message;
+        state.error = action.error.message;
       });
   },
 });
 
-export default obrasSlice.reducer;
+export default etapasSlice.reducer;

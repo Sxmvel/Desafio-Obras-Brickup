@@ -36,16 +36,9 @@ public class ObraController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Obra> atualizarObra(@PathVariable Long id, @RequestBody Obra obraAtualizada) {
-        Optional<Obra> obraExistente = obraService.buscarObraPorId(id);
-        if (obraExistente.isPresent()) {
-            Obra obra = obraExistente.get();
-            obra.setNome(obraAtualizada.getNome());
-            obra.setDescricao(obraAtualizada.getDescricao());
-            obra.setDataInicio(obraAtualizada.getDataInicio());
-            obra.setDataPrevisaoFim(obraAtualizada.getDataPrevisaoFim());
-
-            Obra obraSalva = obraService.salvarObra(obra);
-            return ResponseEntity.ok(obraSalva);
+        Obra obra = obraService.atualizarObra(id, obraAtualizada);
+        if (obra != null) {
+            return ResponseEntity.ok(obra);
         } else {
             return ResponseEntity.notFound().build();
         }

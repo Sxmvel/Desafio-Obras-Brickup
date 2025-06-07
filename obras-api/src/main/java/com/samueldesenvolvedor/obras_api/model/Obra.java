@@ -38,7 +38,7 @@ public class Obra {
     @NotNull(message = "A data de previsão de fim é obrigatória")
     private LocalDate dataPrevisaoFim; // Data Final
 
-    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+   @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Etapa> etapas = new ArrayList<>();
 

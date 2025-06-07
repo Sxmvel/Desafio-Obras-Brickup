@@ -2,7 +2,7 @@ package com.samueldesenvolvedor.obras_api.service;
 
 import com.samueldesenvolvedor.obras_api.dto.ProgressoObraDTO;
 import com.samueldesenvolvedor.obras_api.model.Obra;
-
+import com.samueldesenvolvedor.obras_api.model.Status;
 import com.samueldesenvolvedor.obras_api.repository.ObraRepository;
 import java.util.*;
 
@@ -48,17 +48,22 @@ public class ObraService {
 
     public ProgressoObraDTO calcularProgresso(Long obraId) {
 
-    Obra obra = obraRepository.findById(obraId)
-        .orElseThrow(() -> new RuntimeException("Obra não encontrada com ID: " + obraId));
+        Obra obra = obraRepository.findById(obraId)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada com ID: " + obraId));
 
-    int totalEtapas = obra.getEtapas().size();
-    int etapasConcluidas = (int) obra.getEtapas().stream().filter(etapa -> etapa.getStatus().toString().equals("CONCLUIDA")).count();
+        int totalEtapas = obra.getEtapas().size();
+        int etapasConcluidas = (int) obra.getEtapas().stream()
+                .filter(etapa -> etapa.getStatus() == Status.CONCLUIDA)
+                .count();
 
-    double percentualConcluido = totalEtapas == 0 ? 0.0 : ((double) etapasConcluidas / totalEtapas) * 100.0;
-    return new ProgressoObraDTO(obra.getId(),obra.getNome(),totalEtapas,etapasConcluidas,percentualConcluido);
+        double percentualConcluido = totalEtapas == 0 ? 0.0 : ((double) etapasConcluidas / totalEtapas) * 100.0;
 
-}
-
-
-
+        return new ProgressoObraDTO(
+                obra.getId(),
+                obra.getNome(),
+                totalEtapas,
+                etapasConcluidas,
+                percentualConcluido
+        );
+    }
 }

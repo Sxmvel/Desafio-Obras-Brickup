@@ -1,48 +1,62 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Base da API
 const API_URL = 'http://localhost:8080/api/obras';
 
-// Buscar todas as obras
+// Thunks
 export const fetchObras = createAsyncThunk('obras/fetchObras', async () => {
   const response = await axios.get(API_URL);
   return response.data;
 });
 
-// Buscar progresso da obra
-export const fetchProgressoObra = createAsyncThunk(
-  'obras/fetchProgressoObra',
-  async (id) => {
-    const response = await axios.get(`${API_URL}/${id}/progresso`);
-    return response.data;
-  }
-);
-
-// Buscar uma obra específica com detalhes
 export const fetchObraDetalhada = createAsyncThunk('obras/fetchObraDetalhada', async (id) => {
   const response = await axios.get(`${API_URL}/${id}`);
   return response.data;
 });
 
-// Adicionar uma nova obra
+export const fetchProgressoObra = createAsyncThunk('obras/fetchProgressoObra', async (id) => {
+  const response = await axios.get(`${API_URL}/${id}/progresso`);
+  return response.data;
+});
+
 export const addObra = createAsyncThunk('obras/addObra', async (novaObra) => {
   const response = await axios.post(API_URL, novaObra);
   return response.data;
 });
 
-// Deletar obra
 export const deleteObra = createAsyncThunk('obras/deleteObra', async (id) => {
   await axios.delete(`${API_URL}/${id}`);
   return id;
 });
 
-// Adicionar nova etapa
-export const addEtapa = createAsyncThunk('obras/addEtapa', async (etapaData) => {
-  const response = await axios.post('http://localhost:8080/api/etapas', etapaData);
-  return response.data;
-});
+// ✅ addEtapa corrigido
+export const addEtapa = createAsyncThunk(
+  'obras/addEtapa',
+  async ({ etapaData, obraId }, { dispatch, rejectWithValue }) => {
+    try {
+      // Corrige o envio da estrutura esperada: obra: { id }
+      const etapaCorrigida = {
+        ...etapaData,
+        obra: {
+          id: obraId
+        }
+      };
 
+      const response = await axios.post('http://localhost:8080/api/etapas', etapaCorrigida);
+
+      // Atualiza os dados após o sucesso
+      await dispatch(fetchObraDetalhada(obraId));
+      await dispatch(fetchProgressoObra(obraId));
+
+      return response.data;
+    } catch (err) {
+      console.error('Erro ao criar etapa:', err.response?.data || err.message);
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+// Slice
 const obrasSlice = createSlice({
   name: 'obras',
   initialState: {
@@ -55,7 +69,7 @@ const obrasSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Buscar todas
+      // Buscar obras
       .addCase(fetchObras.pending, (state) => {
         state.status = 'loading';
       })
@@ -68,7 +82,7 @@ const obrasSlice = createSlice({
         state.error = action.error.message;
       })
 
-      // Buscar uma específica
+      // Obra detalhada
       .addCase(fetchObraDetalhada.pending, (state) => {
         state.status = 'loading';
       })
@@ -81,7 +95,7 @@ const obrasSlice = createSlice({
         state.obraSelecionada = null;
       })
 
-      // Adicionar nova obra
+      // Adicionar obra
       .addCase(addObra.fulfilled, (state, action) => {
         state.obras.push(action.payload);
       })
@@ -91,16 +105,14 @@ const obrasSlice = createSlice({
         state.obras = state.obras.filter((obra) => obra.id !== action.payload);
       })
 
-      // Buscar progresso
+      // Progresso
       .addCase(fetchProgressoObra.fulfilled, (state, action) => {
         state.progresso = action.payload;
       })
 
-      // Adicionar etapa
-      .addCase(addEtapa.fulfilled, (state, action) => {
-        if (state.obraSelecionada) {
-          state.obraSelecionada.etapas.push(action.payload);
-        }
+      // Adicionar etapa (não precisa alterar diretamente, já atualizamos via fetch)
+      .addCase(addEtapa.fulfilled, (state) => {
+        // Atualização já tratada acima
       });
   },
 });

@@ -1,7 +1,10 @@
 package com.samueldesenvolvedor.obras_api.service;
 
 import com.samueldesenvolvedor.obras_api.model.Etapa;
+import com.samueldesenvolvedor.obras_api.model.Obra;
 import com.samueldesenvolvedor.obras_api.repository.EtapaRepository;
+import com.samueldesenvolvedor.obras_api.repository.ObraRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,19 @@ public class EtapaService {
         return etapaRepository.findById(id);
     }
 
+    @Autowired
+    private ObraRepository obraRepository;
+
     public Etapa salvarEtapa(Etapa etapa) {
+        if (etapa.getObra() == null || etapa.getObra().getId() == null) {
+            throw new RuntimeException("A obra associada é obrigatória.");
+        }
+
+        Long obraId = etapa.getObra().getId();
+        Obra obra = obraRepository.findById(obraId)
+                .orElseThrow(() -> new RuntimeException("Obra com ID " + obraId + " não encontrada."));
+
+        etapa.setObra(obra); // associa a obra de forma segura
         return etapaRepository.save(etapa);
     }
 
@@ -44,6 +59,5 @@ public class EtapaService {
             return null;
         }
     }
-    
-        
+
 }

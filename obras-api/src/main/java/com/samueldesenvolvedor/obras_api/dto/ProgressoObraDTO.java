@@ -18,6 +18,12 @@ public class ProgressoObraDTO {
         this.percentualConcluido = percentualConcluido;
     }
 
+    public ProgressoObraDTO(int etapasConcluidas, int totalEtapas) {
+        this.etapasConcluidas = etapasConcluidas;
+        this.totalEtapas = totalEtapas;
+        this.percentualConcluido = totalEtapas == 0 ? 0 : ((double) etapasConcluidas / totalEtapas) * 100;
+    }
+
     // Getters e setters
     public Long getObraId() {
         return obraId;
