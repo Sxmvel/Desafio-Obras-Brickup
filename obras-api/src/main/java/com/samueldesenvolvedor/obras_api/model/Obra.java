@@ -1,13 +1,22 @@
 package com.samueldesenvolvedor.obras_api.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
-import jakarta.validation.constraints.*;
-import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Obra {
@@ -29,10 +38,8 @@ public class Obra {
     @NotNull(message = "A data de previsão de fim é obrigatória")
     private LocalDate dataPrevisaoFim; // Data Final
 
-    // Lista de etapas relacionadas a essa obra (relacionamento 1:N)
-    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
-
-    @JsonIgnore
+    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Etapa> etapas = new ArrayList<>();
 
     // Construtores Da Classe Obra
