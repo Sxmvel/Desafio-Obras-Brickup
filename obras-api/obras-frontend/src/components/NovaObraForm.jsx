@@ -1,14 +1,29 @@
 import React from 'react';
-import axios from 'axios';
-import { Form, Input, DatePicker, Button, Typography, message, Card } from 'antd';
+import { useDispatch } from 'react-redux';
+import {
+  Form,
+  Input,
+  DatePicker,
+  Button,
+  Typography,
+  message,
+  Card,
+} from 'antd';
+import { addObra, fetchObras } from '../redux/obras/obrasSlice';
 
 const { Title } = Typography;
 
-const NovaObraForm = ({ onObraCriada }) => {
+const NovaObraForm = () => {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
 
   const onFinish = async (values) => {
     try {
+      if (!values.dataInicio || !values.dataPrevisaoFim) {
+        message.error('As datas são obrigatórias.');
+        return;
+      }
+
       const novaObra = {
         nome: values.nome,
         descricao: values.descricao,
@@ -16,10 +31,10 @@ const NovaObraForm = ({ onObraCriada }) => {
         dataPrevisaoFim: values.dataPrevisaoFim.format('YYYY-MM-DD'),
       };
 
-      await axios.post('http://localhost:8080/api/obras', novaObra);
+      await dispatch(addObra(novaObra)).unwrap();
+      await dispatch(fetchObras());
       message.success('Obra cadastrada com sucesso!');
       form.resetFields();
-      onObraCriada();
     } catch (error) {
       console.error('Erro ao cadastrar obra:', error);
       message.error('Erro ao cadastrar obra.');
@@ -29,11 +44,7 @@ const NovaObraForm = ({ onObraCriada }) => {
   return (
     <Card style={{ marginBottom: 24, borderColor: '#fa8c16' }}>
       <Title level={3}>Cadastrar Nova Obra</Title>
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={onFinish}
-      >
+      <Form layout="vertical" form={form} onFinish={onFinish}>
         <Form.Item
           name="nome"
           label="Nome da Obra"
@@ -67,7 +78,11 @@ const NovaObraForm = ({ onObraCriada }) => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}
+          >
             Cadastrar Obra
           </Button>
         </Form.Item>

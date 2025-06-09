@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchObras, deleteObra } from '../redux/obras/obrasSlice';
 import { Link } from 'react-router-dom';
@@ -21,17 +21,16 @@ const ObrasList = () => {
   const obras = useSelector((state) => state.obras.obras);
   const status = useSelector((state) => state.obras.status);
   const error = useSelector((state) => state.obras.error);
-  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     dispatch(fetchObras());
-  }, [dispatch, reload]);
+  }, [dispatch]);
 
   const handleDelete = async (id) => {
     try {
       await dispatch(deleteObra(id));
       message.success('Obra deletada com sucesso!');
-      setReload(!reload);
+      dispatch(fetchObras()); // Recarrega a lista após deletar
     } catch {
       message.error('Erro ao deletar obra.');
     }

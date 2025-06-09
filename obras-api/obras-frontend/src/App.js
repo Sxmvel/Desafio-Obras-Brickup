@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Layout, ConfigProvider } from 'antd';
+import { useDispatch } from 'react-redux';
+import { fetchObras } from './redux/obras/obrasSlice';
+
 import 'antd/dist/reset.css';
 
 import Dashboard from './components/Dashboard';
@@ -11,10 +14,10 @@ import ObraDetalhes from './components/ObraDetalhes';
 const { Header, Content, Footer } = Layout;
 
 function App() {
-  const [reload, setReload] = useState(false);
+  const dispatch = useDispatch();
 
   const atualizarLista = () => {
-    setReload(!reload);
+    dispatch(fetchObras());
   };
 
   return (
@@ -30,7 +33,7 @@ function App() {
         <Layout>
           <Header
             style={{
-              backgroundColor: '#fa8c16',
+              backgroundColor: '#141414',
               color: 'white',
               fontSize: '20px',
               display: 'flex',
@@ -39,12 +42,12 @@ function App() {
               padding: '0 24px',
             }}
           >
-            <span>Gerenciamento de Obras</span>
+            <span style={{ color: '#fa8c16' }}>Gerenciamento de Obras</span>
             <div>
-              <Link to="/" style={{ color: 'white', marginRight: '20px' }}>
+              <Link to="/" style={{ color: '#fa8c16', marginRight: '20px' }}>
                 Obras
               </Link>
-              <Link to="/dashboard" style={{ color: 'white' }}>
+              <Link to="/dashboard" style={{ color: '#fa8c16' }}>
                 Dashboard
               </Link>
             </div>
@@ -57,7 +60,7 @@ function App() {
                 element={
                   <>
                     <NovaObraForm onObraCriada={atualizarLista} />
-                    <ListaObras reload={reload} />
+                    <ListaObras />
                   </>
                 }
               />
