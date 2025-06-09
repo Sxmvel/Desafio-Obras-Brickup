@@ -96,7 +96,7 @@ A API estará disponível em: [http://localhost:8080](http://localhost:8080)
 
 ## 🎥 Vídeo de Demonstração
 
-> *(Em breve será adicionado um link demonstrando o sistema em funcionamento.)*
+https://docs.google.com/videos/d/1eAoJK5vCiSCwS-HZNfle_uixSwVrPAVBdFv9nLSRz-4/edit?scene=id.p#scene=id.p
 
 
 ## 📌 Status do Projeto
