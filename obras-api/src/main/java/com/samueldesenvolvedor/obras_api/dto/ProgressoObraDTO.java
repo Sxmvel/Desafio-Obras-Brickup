@@ -9,8 +9,7 @@ public class ProgressoObraDTO {
     private double percentualConcluido;
 
     // Construtor com todos os campos
-    public ProgressoObraDTO(Long obraId, String nomeObra, int totalEtapas, int etapasConcluidas,
-            double percentualConcluido) {
+    public ProgressoObraDTO(Long obraId, String nomeObra, int totalEtapas, int etapasConcluidas, double percentualConcluido) {
         this.obraId = obraId;
         this.nomeObra = nomeObra;
         this.totalEtapas = totalEtapas;

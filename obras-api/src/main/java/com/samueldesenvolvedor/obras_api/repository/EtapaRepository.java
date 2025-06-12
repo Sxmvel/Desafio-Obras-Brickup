@@ -10,7 +10,6 @@ import java.util.List;
 public interface EtapaRepository extends JpaRepository<Etapa, Long> {
     // Métodos CRUD básicos já vêm de JpaRepository<Etapa, Long>.
 
-    // Exemplo de consulta personalizada: buscar todas as etapas de uma obra por ID
-    // da obra
+    // Exemplo de consulta personalizada: buscar todas as etapas de uma obra por ID da obra
     List<Etapa> findByObraId(Long obraId);
 }
